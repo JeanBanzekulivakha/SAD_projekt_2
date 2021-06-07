@@ -1,28 +1,52 @@
 ---
-title: "project"
+title: "Projekt 2"
+author: "Banzekulivakha Zhan, Ostoja-Lniski Robert"
+date: "09-06-2021"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+## Struktura projektu
+Struktura katalogów w projekcie przedstawia się nastepująco:
+
+* data - katalog przechowyjący dane
+* info - katalog przechowujący pliki z treścią zadania
+* renv - katalog odpowiedzialny ze wirtulane środowisko języka R
+* projekt_2.Rmd - główny plik (notatnik) zawierajcy kod źródłowy
+* projekt_2.html - plik wynikowy projekt1.Rmd 
+* inne pliki konfiguracjne
+
+## Wyamgane biblioteki i konfiguracja pakeitu *knit*
+> Poniżej linkwoane bibliteki są wymagane do poprawnej "kompilacji" notatnika, stąd też wymagana jest ich wcześniejsza instalacja.
+
+```{r setup, warning=FALSE, message=FALSE}
+library(tidyverse)
+
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Zadanie 1
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+### Przygotowanie danych
+Sekcja ta definiuje funkcje odpowiedzilne za odpowiednie wczytanie danych i ich przygotowanie. 
+
+* load_data - wczytuje dane z pliku do tabeli (data frame-u)
+
+```{r}
+
 ```
 
-## Including Plots
+a) Sprawdz, czy proces szczepien przeciw SARS-CoV-2 przebiega równie szybko we wszystkich województwach, tzn. czy liczba szczepien jest proporcjonalna do populacji tych wojewdództw.
 
-You can also embed plots, for example:
+b) Sprawdz, czy skutecznosc leczenia osób zarazonych wirusem SARS-CoV-2 jest taka sama na terenie całej Polski, tzn. czy liczba przypadków smiertelnych jest proporcjonalna do liczby osób zarazonych w poszczególnych województwach.
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+c) W kazdym z powyzszych przypadków wskaz ewentualnie, które województwa istotnie sie od siebie róznia pod katem rozwazanych statystyk.
+
+## Zadanie 2
+
+
+```{r}
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
