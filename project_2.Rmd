@@ -1,5 +1,5 @@
 ---
-title: "Projekt 2"
+title: "[SAD] Projekt 2"
 author: "Banzekulivakha Zhan, Ostoja-Lniski Robert"
 date: "09-06-2021"
 output: html_document
@@ -16,43 +16,40 @@ Struktura katalogów w projekcie przedstawia się nastepująco:
 * projekt_2.html - plik wynikowy projekt1.Rmd
 * inne pliki konfiguracjne
 
-## Wyamgane biblioteki i konfiguracja pakeitu *knit*
-> Poniżej linkwoane bibliteki są wymagane do poprawnej "kompilacji" notatnika, stąd też wymagana jest ich wcześniejsza instalacja.
+## Wymagane biblioteki i konfiguracja pakeitu *knit*
+Poniżej linkwoane bibliteki są wymagane do poprawnej "kompilacji" notatnika, stąd też wymagana jest ich wcześniejsza instalacja. W projekcie użyliśmy biblioteki readxl do wczytywania plików o rozszerzeniu xlsx oraz xls, ggplot2 do pomocniczej wizualizacji, także dplyr do operacji na dataframe.
 
 ```{r setup, warning=FALSE, message=FALSE}
-#library(tidyverse)
-#install.packages("readxl")
-#install.packages("ggplot2")
-
-
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## Zadanie 1
-
-
-
-### Przygotowanie danych
-Sekcja ta definiuje funkcje odpowiedzilne za odpowiednie wczytanie danych i ich przygotowanie.
-
-* load_data - wczytuje dane z pliku do tabeli (data frame-u)
-
-```{r}
 
 library("readxl")
 library(ggplot2)
 library(dplyr)
 
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Zadanie 1a
+
+Sprawdz, czy proces szczepien przeciw SARS-CoV-2 przebiega równie szybko we wszystkich województwach, tzn. czy liczba szczepien jest proporcjonalna do populacji tych wojewdództw.
+
+
+### Przygotowanie danych
+Sekcja ta definiuje funkcje odpowiedzilne za odpowiednie wczytanie danych i ich przygotowanie.
+
+* read_vaccination_data - wczytuje dane odnośnie szczepień z arkusza kalkulacyjnego
+* read_population_data - wczytuje informacje o populacji danego województwa. Pobraliśmy w tym celu dodatkowy, ogólno dostępny zbiór danych statystycznych ze strony https://stat.gov.pl
+* area_to_population - otrzymując województwo na wejściu zwraca jego populację
+* count_vaccined_to_population - Dla każdego województwa oblicza stosunek sumarycznej liczby osób zaszczepionych (całkowicie) danego dnia do populacji
+
+```{r}
+
 read_vaccination_data <- function(data_dir, data_file) {
   data_file_path <- paste0(data_dir, data_file)
-  # pojawia sie komunikat new names, ktory mowi o tym, ze podczas odczytywania danych z excela
-  # dodano domyslne nazwy kolumn
   df <- read_excel(data_file_path, sheet="dane", range = "AG4:BL165")
   df_dates <- read_excel(data_file_path, sheet="dane", range = "A4:A165")
-  #df <- date
   colnames(df_dates) <- c("date")
   df$date <- as.Date(df_dates$date, format = '%Y-%m-%d')
-  # czy masz moze inny pomysl na przyporzadkowanie nazw kolumn?
   colnames(df) <- c("dolnoslaskie_ogolem","dolnoslaskie_calkowicie",
                     "kujawskopomorskie_ogolem", "kujawskopomorskie_calkowicie",
                     "lubelskie_ogolem", "lubelskie_calkowicie",
@@ -76,8 +73,6 @@ read_vaccination_data <- function(data_dir, data_file) {
 
 read_population_data <- function(data_dir, data_file) {
   data_file_path <- paste0(data_dir, data_file)
-  # pojawia sie komunikat new names, ktory mowi o tym, ze podczas odczytywania danych z excela
-  # dodano domyslne nazwy kolumn
   df <- read_excel(data_file_path, sheet="TABL.1", range = "E10:E26")
   colnames(df) <- c("population")
   area_name <- c("dolnoslaskie",
@@ -117,13 +112,18 @@ count_vaccined_to_population <- function(population_data, vaccination_data) {
   return(vaccination_data)
 }
 
+```
+
+### Pomocnicza wizualizacja
+W celu lepszej analizy, zdecydowaliśmy się przed wykonaniem testów zwizualizować dane, aby poznać spodziewane wyniki. Poniższy kod jest odpowiedzialny za porównanie przebiegu szczepień i zaprezentowanie go na wykresie
+
+```{r, message=FALSE}
 vaccination_data <- read_vaccination_data(data_dir = "data/", data_file = "covid_szczepienia.xlsx")
 population_data <- read_population_data(data_dir = "data/", data_file = "ludnosc.xls")
 vaccination_data <- count_vaccined_to_population(population_data, vaccination_data)
 
 vaccination_data_total <- vaccination_data %>% select(ends_with("calkowicie"), "date")
 
-# umiesz to zmienic, zeby nie bylo takiego copy paste?
 ggplot(vaccination_data_total, aes(date)) +
   geom_line(aes(y = mazowieckie_calkowicie,color = "mazowieckie")) +
   geom_line(aes(y = lodzkie_calkowicie,color = "lodzkie")) +
@@ -140,7 +140,15 @@ ggplot(vaccination_data_total, aes(date)) +
     x = "data",
     y = "Procent osób zaszczepionych [%]"
   )
+```
 
+Wykres wskazuje bardzo zbliżony postęp szczepień we wszystkich badanych województwach. Między niektórymi województwami, przykładowo mazowieckim i świętokrzyskim, występuje różnica rzędu kilku procent. Z drugiej strony porównując przebieg szczepień w województwie łódzkim i śląskim różnice nieznaczne. Spodziewamy się, że wynik testu hipotezy, że proces szczepień przebiega równie szybko we wszystkich województwach będzie inny badając parę województwo mazowieckie - województwo świętorzyskie niż w przypadku województwo łódzkie - województwo śląskie.
+
+### Testowanie hipotezy
+
+Przeprowadziliśmy badania hipotezy porównując rozkłady (...)
+
+``` {r}
 count <- nrow(vaccination_data_total)
 test_mazowieckie <- rnorm(n=count, mean = mean(vaccination_data_total$mazowieckie_calkowicie), sd = sd(vaccination_data_total$mazowieckie_calkowicie))
 test_lodzkie <- rnorm(n=count, mean = mean(vaccination_data_total$lodzkie_calkowicie), sd = sd(vaccination_data_total$lodzkie_calkowicie))
@@ -168,17 +176,20 @@ current_test <- t.test(test_warminskomazurskie, test_swietokrzyskie, var.equal =
 print(current_test)
 
 ```
+
+## Zadanie 1b
+
+Sprawdz, czy skutecznosc leczenia osób zarazonych wirusem SARS-CoV-2 jest taka sama na terenie całej Polski, tzn. czy liczba przypadków smiertelnych jest proporcjonalna do liczby osób zarazonych w poszczególnych województwach.
+
+### Przygotowanie danych
+Sekcja ta definiuje funkcje odpowiedzilne za odpowiednie wczytanie danych i ich przygotowanie.
+
+* read_curation_data - wczytuje sumaryczne dane odnośnie zgonów
+* add_curation_efficiency_column - dodaje do dataframe kolumnę obliczającą procentową jakość leczenia
+* read_daily_cases_sum - wczytuje dzienną sumaryczną liczbę przypadków dla każdego województwa
+* read_daily_deaths_sum - wczytuje dzienną sumaryczną liczbę zgonów dla każdego województwa
+
 ```{r}
-
-```
-
-a) Sprawdz, czy proces szczepien przeciw SARS-CoV-2 przebiega równie szybko we wszystkich województwach, tzn. czy liczba szczepien jest proporcjonalna do populacji tych wojewdództw.
-
-
-```{r}
-
-library("readxl")
-library(ggplot2)
 
 read_curation_data <- function(data_dir, data_file) {
   data_file_path <- paste0(data_dir, data_file)
@@ -187,33 +198,10 @@ read_curation_data <- function(data_dir, data_file) {
   return(df)
 }
 
-curation_data <- read_curation_data(data_dir = "data/", data_file = "covid_w_polsce.xlsx")
-
 add_curation_efficiency_column <- function(df) {
   df <- transform(df, efektywnosc_leczenia = suma_zgonow / suma_potwierdzonych * 100)
   return(df)
 }
-
-curation_data <- add_curation_efficiency_column(curation_data)
-curation_data <- curation_data[order(curation_data$efektywnosc_leczenia),]
-print(curation_data)
-
-draw_efficiency_chart <- function(df) {
-  ggplot(data=df, aes(wojewodztwo, efektywnosc_leczenia)) +
-    theme_bw() +
-    geom_bar(stat='identity') +
-    scale_y_continuous(breaks = scales::pretty_breaks(n = 20)) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-    scale_x_discrete(limits= df$wojewodztwo) +
-    labs(
-      title = paste("Skutecznosc leczenia wirusa Sars-cov-2 w podziale na wojewodztwa"),
-      x = "",
-      y = "Skutecznosc leczenia [%]"
-    )
-}
-
-draw_efficiency_chart(curation_data)
-
 
 read_daily_cases_sum <- function(data_dir, data_file) {
   data_file_path <- paste0(data_dir, data_file)
@@ -261,6 +249,41 @@ read_daily_deaths_sum <- function(data_dir, data_file) {
   return(df2)
 }
 
+```
+
+### Pomocnicza wizualizacja
+W tym zdaniu również zdecydowaliśmy się na pomocniczą wizualizację. Wykres przedstawia efektywność leczenia pacjentów w najpóźniejszym (najbardziej aktualnym) dniu.
+
+``` {r}
+
+curation_data <- read_curation_data(data_dir = "data/", data_file = "covid_w_polsce.xlsx")
+curation_data <- add_curation_efficiency_column(curation_data)
+curation_data <- curation_data[order(curation_data$efektywnosc_leczenia),]
+
+draw_efficiency_chart <- function(df) {
+  ggplot(data=df, aes(wojewodztwo, efektywnosc_leczenia)) +
+    theme_bw() +
+    geom_bar(stat='identity') +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20)) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    scale_x_discrete(limits= df$wojewodztwo) +
+    labs(
+      title = paste("Skutecznosc leczenia wirusa Sars-cov-2 w podziale na wojewodztwa"),
+      x = "",
+      y = "Skutecznosc leczenia [%]"
+    )
+}
+
+draw_efficiency_chart(curation_data)
+
+```
+
+### Testowanie hipotezy
+
+Przeprowadziliśmy badania hipotezy porównując rozkłady (...)
+
+``` {r}
+
 daily_cases_sum <- read_daily_cases_sum(data_dir = "data/", data_file = "covid_w_polsce.xlsx")
 daily_deaths_sum <- read_daily_deaths_sum(data_dir = "data/", data_file = "covid_w_polsce.xlsx")
 daily_curation_ratio <- daily_deaths_sum / daily_cases_sum
@@ -298,9 +321,19 @@ print(current_test)
 
 ```
 
-b) Sprawdz, czy skutecznosc leczenia osób zarazonych wirusem SARS-CoV-2 jest taka sama na terenie całej Polski, tzn. czy liczba przypadków smiertelnych jest proporcjonalna do liczby osób zarazonych w poszczególnych województwach.
+## Zadanie 1c
 
-c) W kazdym z powyzszych przypadków wskaz ewentualnie, które województwa istotnie sie od siebie róznia pod katem rozwazanych statystyk.
+W kazdym z powyzszych przypadków wskaz ewentualnie, które województwa istotnie sie od siebie róznia pod katem rozwazanych statystyk.
+
+### Rozwiązanie
+Do rozwiązania c skorzystwaliśmy z wykresów wygenerowanych w powyższych podpunktach. Na ich podstawie przeprowadziliśmy dodatkowe testy między województwami o skrajnych wartościach.
+
+#### Przebieg procesu szczepień
+
+
+
+#### Skuteczność leczenia
+
 
 ## Zadanie 2
 
