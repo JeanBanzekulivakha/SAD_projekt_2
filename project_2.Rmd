@@ -197,8 +197,25 @@ c) W kazdym z powyzszych przypadków wskaz ewentualnie, które województwa isto
 
 ## Zadanie 2
 
+#### Zakładamy hipotezę o niezaleznosci wyniku meczu, rozumianego jako zwyciestwo, porazke lub remis gospodarzy, od kraju rozgrywek.
+
+Dane pobrane ze strony [fcstats.com](https://pl.fcstats.com). 
+
+*Zestaw lig do analizy:*
+* Super League (Liga chińska)
+* Premier League (Liga angielska)
+* Serie A (Liga włoska)
+* Primera Division (Liga hiszpańska)
+
+Przygotowanie danych do analizy:
 
 ```{r}
-
+data_compare_leagues <- data.frame(matrix(ncol = 4, nrow = 0))
+colnames(data_compare_leagues) <- c("name_of_league", "1", "x", "2")
+data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Super League (Liga chińska)", 102, 79, 59)
+data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Premier League (Liga angielska)", 193, 96, 91)
+data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Serie A (Liga włoska)", 186, 102, 92)
+data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Primera Division (Liga hiszpańska)", 194, 95, 91)
+data_compare_leagues
 ```
 
