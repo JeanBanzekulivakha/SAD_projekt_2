@@ -141,6 +141,32 @@ ggplot(vaccination_data_total, aes(date)) +
     y = "Procent osób zaszczepionych [%]"
   )
 
+count <- nrow(vaccination_data_total)
+test_mazowieckie <- rnorm(n=count, mean = mean(vaccination_data_total$mazowieckie_calkowicie), sd = sd(vaccination_data_total$mazowieckie_calkowicie))
+test_lodzkie <- rnorm(n=count, mean = mean(vaccination_data_total$lodzkie_calkowicie), sd = sd(vaccination_data_total$lodzkie_calkowicie))
+current_test <- t.test(test_mazowieckie, test_lodzkie, var.equal = TRUE)
+print(current_test)
+
+test_slaskie <- rnorm(n=count, mean = mean(vaccination_data_total$slaskie_calkowicie), sd = sd(vaccination_data_total$slaskie_calkowicie))
+current_test <- t.test(test_slaskie, test_lodzkie, var.equal = TRUE)
+print(current_test)
+
+test_lubelskie <- rnorm(n=count, mean = mean(vaccination_data_total$lubelskie_calkowicie), sd = sd(vaccination_data_total$lubelskie_calkowicie))
+current_test <- t.test(test_slaskie, test_lubelskie, var.equal = TRUE)
+print(current_test)
+
+test_kujawskopomorskie <- rnorm(n=count, mean = mean(vaccination_data_total$kujawskopomorskie_calkowicie), sd = sd(vaccination_data_total$kujawskopomorskie_calkowicie))
+current_test <- t.test(test_kujawskopomorskie, test_lubelskie, var.equal = TRUE)
+print(current_test)
+
+test_warminskomazurskie <- rnorm(n=count, mean = mean(vaccination_data_total$warminskomazurskie_calkowicie), sd = sd(vaccination_data_total$warminskomazurskie_calkowicie))
+current_test <- t.test(test_kujawskopomorskie, test_warminskomazurskie, var.equal = TRUE)
+print(current_test)
+
+test_swietokrzyskie <- rnorm(n=count, mean = mean(vaccination_data_total$swietokrzyskie_calkowicie), sd = sd(vaccination_data_total$swietokrzyskie_calkowicie))
+current_test <- t.test(test_warminskomazurskie, test_swietokrzyskie, var.equal = TRUE)
+print(current_test)
+
 ```
 ```{r}
 
