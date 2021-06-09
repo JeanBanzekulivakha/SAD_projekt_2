@@ -135,7 +135,6 @@ ggplot(vaccination_data_total, aes(date)) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 20)) +
   scale_x_date(breaks = "1 week") +
   theme(axis.text.x = element_text(angle = 90, hjust=1)) +
-  scale_x_discrete(limits= df$wojewodztwo) +
   labs(
     title = "Przebieg szczepien w poszczegolnych wojewodztwach",
     x = "data",
@@ -188,6 +187,88 @@ draw_efficiency_chart <- function(df) {
 }
 
 draw_efficiency_chart(curation_data)
+
+
+read_daily_cases_sum <- function(data_dir, data_file) {
+  data_file_path <- paste0(data_dir, data_file)
+  df <- read_excel(data_file_path, sheet="Wzrost w województwach", range = "B31:QT47")
+  df2 <- data.frame(t(df[-1]))
+  colnames(df2) <- c("dolnoslaskie",
+                  "kujawskopomorskie",
+                  "lubelskie",
+                  "lubuskie",
+                  "lodzkie",
+                  "malopolskie",
+                  "mazowieckie",
+                  "opolskie",
+                  "podkarpackie",
+                  "podlaskie",
+                  "pomorskie",
+                  "slaskie",
+                  "swietokrzyskie",
+                  "warminskomazurskie",
+                  "wielkopolskie",
+                  "zachodniopomorskie")
+  return(df2)
+}
+
+read_daily_deaths_sum <- function(data_dir, data_file) {
+  data_file_path <- paste0(data_dir, data_file)
+  df <- read_excel(data_file_path, sheet="Wzrost w województwach", range = "B71:QT87")
+  df2 <- data.frame(t(df[-1]))
+  colnames(df2) <- c("dolnoslaskie",
+                  "kujawskopomorskie",
+                  "lubelskie",
+                  "lubuskie",
+                  "lodzkie",
+                  "malopolskie",
+                  "mazowieckie",
+                  "opolskie",
+                  "podkarpackie",
+                  "podlaskie",
+                  "pomorskie",
+                  "slaskie",
+                  "swietokrzyskie",
+                  "warminskomazurskie",
+                  "wielkopolskie",
+                  "zachodniopomorskie")
+  return(df2)
+}
+
+daily_cases_sum <- read_daily_cases_sum(data_dir = "data/", data_file = "covid_w_polsce.xlsx")
+daily_deaths_sum <- read_daily_deaths_sum(data_dir = "data/", data_file = "covid_w_polsce.xlsx")
+daily_curation_ratio <- daily_deaths_sum / daily_cases_sum
+daily_curation_ratio[is.na(daily_curation_ratio)] <- 0
+
+set.seed(0)
+
+count <- nrow(daily_curation_ratio)
+
+test_mazowieckie <- rnorm(n=count, mean = mean(daily_curation_ratio$mazowieckie), sd = sd(daily_curation_ratio$mazowieckie))
+test_lodzkie <- rnorm(n=count, mean = mean(daily_curation_ratio$lodzkie), sd = sd(daily_curation_ratio$lodzkie))
+current_test <- t.test(test_mazowieckie, test_lodzkie, var.equal = TRUE)
+print(current_test)
+
+test_slaskie <- rnorm(n=count, mean = mean(daily_curation_ratio$slaskie), sd = sd(daily_curation_ratio$slaskie))
+current_test <- t.test(test_slaskie, test_lodzkie, var.equal = TRUE)
+print(current_test)
+
+test_lubelskie <- rnorm(n=count, mean = mean(daily_curation_ratio$lubelskie), sd = sd(daily_curation_ratio$lubelskie))
+current_test <- t.test(test_slaskie, test_lubelskie, var.equal = TRUE)
+print(current_test)
+
+test_kujawskopomorskie <- rnorm(n=count, mean = mean(daily_curation_ratio$kujawskopomorskie), sd = sd(daily_curation_ratio$kujawskopomorskie))
+current_test <- t.test(test_kujawskopomorskie, test_lubelskie, var.equal = TRUE)
+print(current_test)
+
+test_warminskomazurskie <- rnorm(n=count, mean = mean(daily_curation_ratio$warminskomazurskie), sd = sd(daily_curation_ratio$warminskomazurskie))
+current_test <- t.test(test_kujawskopomorskie, test_warminskomazurskie, var.equal = TRUE)
+print(current_test)
+
+test_swietokrzyskie <- rnorm(n=count, mean = mean(daily_curation_ratio$swietokrzyskie), sd = sd(daily_curation_ratio$swietokrzyskie))
+current_test <- t.test(test_warminskomazurskie, test_swietokrzyskie, var.equal = TRUE)
+print(current_test)
+
 
 ```
 
