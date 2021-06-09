@@ -12,7 +12,7 @@ Struktura katalogów w projekcie przedstawia się nastepująco:
 * info - katalog przechowujący pliki z treścią zadania
 * renv - katalog odpowiedzialny ze wirtulane środowisko języka R
 * projekt_2.Rmd - główny plik (notatnik) zawierajcy kod źródłowy
-* projekt_2.html - plik wynikowy projekt1.Rmd 
+* projekt_2.html - plik wynikowy projekt1.Rmd
 * inne pliki konfiguracjne
 
 ## Wyamgane biblioteki i konfiguracja pakeitu *knit*
@@ -29,15 +29,63 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ### Przygotowanie danych
-Sekcja ta definiuje funkcje odpowiedzilne za odpowiednie wczytanie danych i ich przygotowanie. 
+Sekcja ta definiuje funkcje odpowiedzilne za odpowiednie wczytanie danych i ich przygotowanie.
 
 * load_data - wczytuje dane z pliku do tabeli (data frame-u)
 
 ```{r}
 
+library("readxl")
+data_dir = "data/"
+
+my_data <- read_excel(data_dir + ".xlsx", sheet = "data")
+
+
 ```
 
 a) Sprawdz, czy proces szczepien przeciw SARS-CoV-2 przebiega równie szybko we wszystkich województwach, tzn. czy liczba szczepien jest proporcjonalna do populacji tych wojewdództw.
+
+
+```{r}
+
+library("readxl")
+library(ggplot2)
+
+read_curation_data <- function(data_dir, data_file) {
+  data_file_path <- paste0(data_dir, data_file)
+  df <- read_excel(data_file_path, sheet="Aktualna sytuacja w Polsce", range = "B2:G18")
+  colnames(df) <- c("wojewodztwo","suma_potwierdzonych","suma_zgonow","suma_wyzdrowien", "nieaktyne_przypadki", "aktywne_przypadki")
+  return(df)
+}
+
+curation_data <- read_curation_data(data_dir = "data/", data_file = "covid_w_polsce.xlsx")
+
+add_curation_efficiency_column <- function(df) {
+  df <- transform(df, efektywnosc_leczenia = suma_zgonow / suma_potwierdzonych * 100)
+  return(df)
+}
+
+curation_data <- add_curation_efficiency_column(curation_data)
+curation_data <- curation_data[order(curation_data$efektywnosc_leczenia),]
+print(curation_data)
+
+draw_efficiency_chart <- function(df) {
+  ggplot(data=df, aes(wojewodztwo, efektywnosc_leczenia)) +
+    theme_bw() +
+    geom_bar(stat='identity') +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20)) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    scale_x_discrete(limits= df$wojewodztwo) +
+    labs(
+      title = paste("Skutecznosc leczenia wirusa Sars-cov-2 w podziale na wojewodztwa"),
+      x = "",
+      y = "Skutecznosc leczenia [%]"
+    )
+}
+
+draw_efficiency_chart(curation_data)
+
+```
 
 b) Sprawdz, czy skutecznosc leczenia osób zarazonych wirusem SARS-CoV-2 jest taka sama na terenie całej Polski, tzn. czy liczba przypadków smiertelnych jest proporcjonalna do liczby osób zarazonych w poszczególnych województwach.
 
