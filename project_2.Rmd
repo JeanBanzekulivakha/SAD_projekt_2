@@ -5,6 +5,7 @@ date: "09-06-2021"
 output: html_document
 ---
 
+
 ## Struktura projektu
 Struktura katalogów w projekcie przedstawia się nastepująco:
 
@@ -19,7 +20,10 @@ Struktura katalogów w projekcie przedstawia się nastepująco:
 > Poniżej linkwoane bibliteki są wymagane do poprawnej "kompilacji" notatnika, stąd też wymagana jest ich wcześniejsza instalacja.
 
 ```{r setup, warning=FALSE, message=FALSE}
-library(tidyverse)
+#library(tidyverse)
+#install.packages("readxl")
+#install.packages("ggplot2")
+
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -46,7 +50,8 @@ read_vaccination_data <- function(data_dir, data_file) {
   df <- read_excel(data_file_path, sheet="dane", range = "AG4:BL165")
   df_dates <- read_excel(data_file_path, sheet="dane", range = "A4:A165")
   #df <- date
-  df["date"] <- df_dates
+  colnames(df_dates) <- c("date")
+  df$date <- as.Date(df_dates$date, format = '%Y-%m-%d')
   # czy masz moze inny pomysl na przyporzadkowanie nazw kolumn?
   colnames(df) <- c("dolnoslaskie_ogolem","dolnoslaskie_calkowicie",
                     "kujawskopomorskie_ogolem", "kujawskopomorskie_calkowicie",
@@ -65,6 +70,7 @@ read_vaccination_data <- function(data_dir, data_file) {
                     "wielkopolskie_ogolem", "wielkopolskie_calkowicie",
                     "zachodniopomorskie_ogolem", "zachodniopomorskie_calkowicie",
                     "date")
+  df <- df[-c(2:18, 20:21),]
   return(df)
 }
 
@@ -105,7 +111,7 @@ count_vaccined_to_population <- function(population_data, vaccination_data) {
   data_column_names <- data_column_names[ data_column_names != 'date']
   for(i in data_column_names) {
     area_population <- area_to_population(population_data, i)
-    vaccination_data[[i]] <- as.numeric(as.character(vaccination_data[[i]])) / area_population
+    vaccination_data[[i]] <- as.numeric(as.character(vaccination_data[[i]])) / area_population * 100
   }
 
   return(vaccination_data)
@@ -119,27 +125,25 @@ vaccination_data_total <- vaccination_data %>% select(ends_with("calkowicie"), "
 
 # umiesz to zmienic, zeby nie bylo takiego copy paste?
 ggplot(vaccination_data_total, aes(date)) +
-  geom_line(aes(y = dolnoslaskie_calkowicie,wojewodztwo = "dolnoslaskie")) +
-  geom_line(aes(y = kujawskopomorskie_calkowicie,wojewodztwo = "kujawsko-pomorskie")) +
-  geom_line(aes(y = lubelskie_calkowicie,wojewodztwo = "lubelskie")) +
-  geom_line(aes(y = lubuskie_calkowicie,wojewodztwo = "lubuskie")) +
-  geom_line(aes(y = lodzkie_calkowicie,wojewodztwo = "lodzkie")) +
-  geom_line(aes(y = malopolskie_calkowicie,wojewodztwo = "malopolskie")) +
-  geom_line(aes(y = mazowieckie_calkowicie,wojewodztwo = "mazowieckie")) +
-  geom_line(aes(y = opolskie_calkowicie,wojewodztwo = "opolskie")) +
-  geom_line(aes(y = podkarpackie_calkowicie,wojewodztwo = "podkarpackie")) +
-  geom_line(aes(y = podlaskie_calkowicie,wojewodztwo = "podlaskie")) +
-  geom_line(aes(y = pomorskie_calkowicie,wojewodztwo = "pomorskie")) +
-  geom_line(aes(y = slaskie_calkowicie,wojewodztwo = "slaskie")) +
-  geom_line(aes(y = swietokrzyskie_calkowicie,wojewodztwo = "swietokrzyskie")) +
-  geom_line(aes(y = warminskomazurskie_calkowicie,wojewodztwo = "warminsko-mazurskie")) +
-  geom_line(aes(y = wielkopolskie_calkowicie,wojewodztwo = "wielkopolskie")) +
-  geom_line(aes(y = zachodniopomorskie_calkowicie,wojewodztwo = "zachodniopomorskie")) +
+  geom_line(aes(y = mazowieckie_calkowicie,color = "mazowieckie")) +
+  geom_line(aes(y = lodzkie_calkowicie,color = "lodzkie")) +
+  geom_line(aes(y = slaskie_calkowicie,color = "slaskie")) +
+  geom_line(aes(y = lubelskie_calkowicie,color = "lubelskie")) +
+  geom_line(aes(y = kujawskopomorskie_calkowicie,color = "kujawsko-pomorskie")) +
+  geom_line(aes(y = warminskomazurskie_calkowicie,color = "warminsko-mazurskie")) +
+  geom_line(aes(y = swietokrzyskie_calkowicie,color = "swietokrzyskie")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20)) +
+  scale_x_date(breaks = "1 week") +
+  theme(axis.text.x = element_text(angle = 90, hjust=1)) +
+  scale_x_discrete(limits= df$wojewodztwo) +
   labs(
     title = "Przebieg szczepien w poszczegolnych wojewodztwach",
     x = "data",
-    y = "Procent osób zaszczepionych"
+    y = "Procent osób zaszczepionych [%]"
   )
+
+```
+```{r}
 
 ```
 
