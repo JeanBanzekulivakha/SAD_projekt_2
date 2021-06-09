@@ -26,6 +26,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Zadanie 1
 
+
+
 ### Przygotowanie danych
 Sekcja ta definiuje funkcje odpowiedzilne za odpowiednie wczytanie danych i ich przygotowanie.
 
@@ -85,28 +87,12 @@ draw_efficiency_chart(curation_data)
 
 ```
 
-TODO:
-Liczba szczepień:
-https://docs.google.com/spreadsheets/d/19DqluO7mmKrheqBDRD2ZFM2ZLSi4YTW2nwLbPHkiTYU/edit#gid=0
-Ludność:
-???
-
-Wykresy:
-1. porownawczy liniowy
-oraz tutaj zainspirować się https://koronawirusunas.pl
-
 b) Sprawdz, czy skutecznosc leczenia osób zarazonych wirusem SARS-CoV-2 jest taka sama na terenie całej Polski, tzn. czy liczba przypadków smiertelnych jest proporcjonalna do liczby osób zarazonych w poszczególnych województwach.
 
-TODO:
-https://docs.google.com/spreadsheets/d/1ierEhD6gcq51HAm433knjnVwey4ZE5DCnu1bW7PRG3E/edit#gid=0
-Wykres śłupkowy
-
 c) W kazdym z powyzszych przypadków wskaz ewentualnie, które województwa istotnie sie od siebie róznia pod katem rozwazanych statystyk.
-Wnioski z poprzednich
 
 ## Zadanie 2
 
-https://pl.fcstats.com/porownanie-lig,1.php
 
 ```{r}
 
