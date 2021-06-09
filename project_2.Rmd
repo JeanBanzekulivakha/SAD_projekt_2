@@ -36,10 +36,110 @@ Sekcja ta definiuje funkcje odpowiedzilne za odpowiednie wczytanie danych i ich 
 ```{r}
 
 library("readxl")
-data_dir = "data/"
+library(ggplot2)
+library(dplyr)
 
-my_data <- read_excel(data_dir + ".xlsx", sheet = "data")
+read_vaccination_data <- function(data_dir, data_file) {
+  data_file_path <- paste0(data_dir, data_file)
+  # pojawia sie komunikat new names, ktory mowi o tym, ze podczas odczytywania danych z excela
+  # dodano domyslne nazwy kolumn
+  df <- read_excel(data_file_path, sheet="dane", range = "AG4:BL165")
+  df_dates <- read_excel(data_file_path, sheet="dane", range = "A4:A165")
+  #df <- date
+  df["date"] <- df_dates
+  # czy masz moze inny pomysl na przyporzadkowanie nazw kolumn?
+  colnames(df) <- c("dolnoslaskie_ogolem","dolnoslaskie_calkowicie",
+                    "kujawskopomorskie_ogolem", "kujawskopomorskie_calkowicie",
+                    "lubelskie_ogolem", "lubelskie_calkowicie",
+                    "lubuskie_ogolem", "lubuskie_calkowicie",
+                    "lodzkie_ogolem", "lodzkie_calkowicie",
+                    "malopolskie_ogolem", "malopolskie_calkowicie",
+                    "mazowieckie_ogolem", "mazowieckie_calkowicie",
+                    "opolskie_ogolem", "opolskie_calkowicie",
+                    "podkarpackie_ogolem", "podkarpackie_calkowicie",
+                    "podlaskie_ogolem", "podlaskie_calkowicie",
+                    "pomorskie_ogolem", "pomorskie_calkowicie",
+                    "slaskie_ogolem", "slaskie_calkowicie",
+                    "swietokrzyskie_ogolem", "swietokrzyskie_calkowicie",
+                    "warminskomazurskie_ogolem", "warminskomazurskie_calkowicie",
+                    "wielkopolskie_ogolem", "wielkopolskie_calkowicie",
+                    "zachodniopomorskie_ogolem", "zachodniopomorskie_calkowicie",
+                    "date")
+  return(df)
+}
 
+read_population_data <- function(data_dir, data_file) {
+  data_file_path <- paste0(data_dir, data_file)
+  # pojawia sie komunikat new names, ktory mowi o tym, ze podczas odczytywania danych z excela
+  # dodano domyslne nazwy kolumn
+  df <- read_excel(data_file_path, sheet="TABL.1", range = "E10:E26")
+  colnames(df) <- c("population")
+  area_name <- c("dolnoslaskie",
+                  "kujawskopomorskie",
+                  "lubelskie",
+                  "lubuskie",
+                  "lodzkie",
+                  "malopolskie",
+                  "mazowieckie",
+                  "opolskie",
+                  "podkarpackie",
+                  "podlaskie",
+                  "pomorskie",
+                  "slaskie",
+                  "swietokrzyskie",
+                  "warminskomazurskie",
+                  "wielkopolskie",
+                  "zachodniopomorskie")
+  df["area"] <- area_name
+  return(df)
+}
+
+area_to_population <- function(population_data, area_info) {
+  area_name <- gsub("\\_.*","",area_info)
+  area_population <- population_data$population[ population_data$area==area_name ]
+  return(area_population)
+}
+
+count_vaccined_to_population <- function(population_data, vaccination_data) {
+  data_column_names <- names(vaccination_data)
+  data_column_names <- data_column_names[ data_column_names != 'date']
+  for(i in data_column_names) {
+    area_population <- area_to_population(population_data, i)
+    vaccination_data[[i]] <- as.numeric(as.character(vaccination_data[[i]])) / area_population
+  }
+
+  return(vaccination_data)
+}
+
+vaccination_data <- read_vaccination_data(data_dir = "data/", data_file = "covid_szczepienia.xlsx")
+population_data <- read_population_data(data_dir = "data/", data_file = "ludnosc.xls")
+vaccination_data <- count_vaccined_to_population(population_data, vaccination_data)
+
+vaccination_data_total <- vaccination_data %>% select(ends_with("calkowicie"), "date")
+
+# umiesz to zmienic, zeby nie bylo takiego copy paste?
+ggplot(vaccination_data_total, aes(date)) +
+  geom_line(aes(y = dolnoslaskie_calkowicie,wojewodztwo = "dolnoslaskie")) +
+  geom_line(aes(y = kujawskopomorskie_calkowicie,wojewodztwo = "kujawsko-pomorskie")) +
+  geom_line(aes(y = lubelskie_calkowicie,wojewodztwo = "lubelskie")) +
+  geom_line(aes(y = lubuskie_calkowicie,wojewodztwo = "lubuskie")) +
+  geom_line(aes(y = lodzkie_calkowicie,wojewodztwo = "lodzkie")) +
+  geom_line(aes(y = malopolskie_calkowicie,wojewodztwo = "malopolskie")) +
+  geom_line(aes(y = mazowieckie_calkowicie,wojewodztwo = "mazowieckie")) +
+  geom_line(aes(y = opolskie_calkowicie,wojewodztwo = "opolskie")) +
+  geom_line(aes(y = podkarpackie_calkowicie,wojewodztwo = "podkarpackie")) +
+  geom_line(aes(y = podlaskie_calkowicie,wojewodztwo = "podlaskie")) +
+  geom_line(aes(y = pomorskie_calkowicie,wojewodztwo = "pomorskie")) +
+  geom_line(aes(y = slaskie_calkowicie,wojewodztwo = "slaskie")) +
+  geom_line(aes(y = swietokrzyskie_calkowicie,wojewodztwo = "swietokrzyskie")) +
+  geom_line(aes(y = warminskomazurskie_calkowicie,wojewodztwo = "warminsko-mazurskie")) +
+  geom_line(aes(y = wielkopolskie_calkowicie,wojewodztwo = "wielkopolskie")) +
+  geom_line(aes(y = zachodniopomorskie_calkowicie,wojewodztwo = "zachodniopomorskie")) +
+  labs(
+    title = "Przebieg szczepien w poszczegolnych wojewodztwach",
+    x = "data",
+    y = "Procent osób zaszczepionych"
+  )
 
 ```
 
