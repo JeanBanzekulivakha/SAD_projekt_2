@@ -432,9 +432,6 @@ na poziomie 16%. Dodatkowo, roznica pojawiła się na początku akcji szczepień
 
 W opisie zadania 1b zaprezentowaliśmy różnicę między skrajnymi województwami: mazowieckim i świętokrzyskim. Wartość p dla ich testu nie jednak najmniejszą wartością w zbiorze. Zgodnie z raportem "Leczenie: Mazowieckie i Lubelskie jest niezalezne dla p= 0.05 chisq.p-val= 1.93220759873936e-102". Wynika to z faktu, że województwo lubelskie posiada jeszcze większą procentową liczbę zaszczepionych osób niż świętokrzyskie.
 
-### Rozwiązanie
-Do rozwiązania c skorzystwaliśmy z wykresów wygenerowanych w powyższych podpunktach. Na ich podstawie przeprowadziliśmy dodatkowe testy między województwami o skrajnych wartościach.
-
 
 ## Zadanie 2
 
