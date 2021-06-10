@@ -286,39 +286,56 @@ Przeprowadziliśmy badania hipotezy porównując rozkłady normalne określając
 
 ``` {r}
 
-daily_cases_sum <- read_daily_cases_sum(data_dir = "data/", data_file = "covid_w_polsce.xlsx")
-daily_deaths_sum <- read_daily_deaths_sum(data_dir = "data/", data_file = "covid_w_polsce.xlsx")
-daily_curation_ratio <- daily_deaths_sum / daily_cases_sum
-daily_curation_ratio[is.na(daily_curation_ratio)] <- 0
+test_pair <- function(df, label1, label2, p_val, verbose) {
+  to_test <- df %>% filter(wojewodztwo %in% c(label1, label2))
+  to_test <- to_test %>% select("suma_potwierdzonych", "suma_zgonow")
+  p <- to_test$suma_potwierdzonych / sum(to_test$suma_potwierdzonych)
+  res <- chisq.test(to_test$suma_zgonow, p=p)
 
-set.seed(0)
+  if(res$p.value > p_val) {
+    result_str <- paste("zalezne dla p=", p_val)
+  } else {
+    result_str <- paste("niezalezne dla p=", p_val)
+  }
+  print(paste("Leczenie covid w wojewodztwach:", label1, "i", label2, "jest", result_str, "wyznaczono p-val=", res$p.value))
 
-count <- nrow(daily_curation_ratio)
+  if(verbose == 1) {
+    print(res)
+  }
 
-test_mazowieckie <- rnorm(n=count, mean = mean(daily_curation_ratio$mazowieckie), sd = sd(daily_curation_ratio$mazowieckie))
-test_lodzkie <- rnorm(n=count, mean = mean(daily_curation_ratio$lodzkie), sd = sd(daily_curation_ratio$lodzkie))
-current_test <- t.test(test_mazowieckie, test_lodzkie, var.equal = TRUE)
-print(current_test)
+}
 
-test_slaskie <- rnorm(n=count, mean = mean(daily_curation_ratio$slaskie), sd = sd(daily_curation_ratio$slaskie))
-current_test <- t.test(test_slaskie, test_lodzkie, var.equal = TRUE)
-print(current_test)
+test_full <- function(df, p_val, verbose) {
+  to_test <- df %>% filter(wojewodztwo %in% c("Mazowieckie", "Łódzkie", "Śląskie",
+                                                             "Lubelskie", "Kujawsko-Pomorskie", "Warmińsko-Mazurskie", "Świętokrzyskie"))
+  to_test <- to_test %>% select("suma_potwierdzonych", "suma_zgonow")
+  p <- to_test$suma_potwierdzonych / sum(to_test$suma_potwierdzonych)
+  res <- chisq.test(to_test$suma_zgonow, p=p)
 
-test_lubelskie <- rnorm(n=count, mean = mean(daily_curation_ratio$lubelskie), sd = sd(daily_curation_ratio$lubelskie))
-current_test <- t.test(test_slaskie, test_lubelskie, var.equal = TRUE)
-print(current_test)
+  if(res$p.value > p_val) {
+    result_str <- paste("zalezne dla p=", p_val)
+  } else {
+    result_str <- paste("niezalezne dla p=", p_val)
+  }
+  print(paste("Leczenie covid we wszystkich badanych wojewodztwach jest", result_str, "wyznaczono p-val=", res$p.value))
 
-test_kujawskopomorskie <- rnorm(n=count, mean = mean(daily_curation_ratio$kujawskopomorskie), sd = sd(daily_curation_ratio$kujawskopomorskie))
-current_test <- t.test(test_kujawskopomorskie, test_lubelskie, var.equal = TRUE)
-print(current_test)
+  if(verbose == 1) {
+    print(res)
+  }
+}
 
-test_warminskomazurskie <- rnorm(n=count, mean = mean(daily_curation_ratio$warminskomazurskie), sd = sd(daily_curation_ratio$warminskomazurskie))
-current_test <- t.test(test_kujawskopomorskie, test_warminskomazurskie, var.equal = TRUE)
-print(current_test)
+test_every_pair <- function(tested_areas, p_val, verbose) {
+  for(i in 1:(length(tested_areas) - 1)) {
+    for (j in (i+1):length(tested_areas)) {
+      test_pair(curation_data, tested_areas[[i]][1], tested_areas[[j]][1], p_val, verbose)
+    }
+  }
+}
 
-test_swietokrzyskie <- rnorm(n=count, mean = mean(daily_curation_ratio$swietokrzyskie), sd = sd(daily_curation_ratio$swietokrzyskie))
-current_test <- t.test(test_warminskomazurskie, test_swietokrzyskie, var.equal = TRUE)
-print(current_test)
+test_full(curation_data, 1, 1)
+
+tested_areas <-  list("Mazowieckie", "Łódzkie", "Śląskie", "Lubelskie", "Kujawsko-Pomorskie", "Warmińsko-Mazurskie", "Świętokrzyskie")
+test_every_pair(tested_areas, 0.05, 0)
 
 
 ```
