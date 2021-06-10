@@ -12,11 +12,11 @@ Struktura katalogów w projekcie przedstawia się nastepująco:
 * data - katalog przechowyjący dane
 * info - katalog przechowujący pliki z treścią zadania
 * renv - katalog odpowiedzialny ze wirtulane środowisko języka R
-* projekt_2.Rmd - główny plik (notatnik) zawierajcy kod źródłowy
-* projekt_2.html - plik wynikowy projekt1.Rmd
+* projekt2.Rmd - główny plik (notatnik) zawierajcy kod źródłowy
+* projekt2.html - plik wynikowy projekt1.Rmd
 * inne pliki konfiguracjne
 
-## Wymagane biblioteki i konfiguracja pakeitu *knit*
+## Wymagane biblioteki i konfiguracja pakietu *knit*
 Poniżej linkwoane bibliteki są wymagane do poprawnej "kompilacji" notatnika, stąd też wymagana jest ich wcześniejsza instalacja. W projekcie użyliśmy biblioteki readxl do wczytywania plików o rozszerzeniu xlsx oraz xls, ggplot2 do pomocniczej wizualizacji, także dplyr do operacji na dataframe.
 
 ```{r setup, warning=FALSE, message=FALSE}
