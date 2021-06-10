@@ -414,26 +414,23 @@ test_every_pair_eff(curation_data, tested_areas, 0.05, 0)
 
 Jak widać w wygenerowanym powyżej raporcie, wystepuje wyraźna różnica między przebiegiem leczenia covid w województwach:
 
-* Śląskie i Kujawsko-Pomorskie
-* Lubelskie i Świętokrzyski
-* Mazowieckie i Warmińsko-Mazurskie
+* Śląskie i Kujawsko-Pomorskie (p= 0.05 chisq.p-val= 0.257396627583976)
+* Lubelskie i Świętokrzyski (p= 0.05 chisq.p-val= 0.59633972095401)
+* Mazowieckie i Warmińsko-Mazurskie (p= 0.05 chisq.p-val= 0.0807614942677542)
 
-Jest to zgodne z wykresem, ponieważ procentowa różnica między zaszczepionymi populacjami jest dla tych par niewielka, w przeciwieństwie do populacji. W pozostałych przypadkach taka sytuacja nie występuje. Przykładowo skuteczność w wojewodztwie świętokrzyskim wynosi około 3.5%, natomiast w mazowieckim jedynie 2,3%. Potwierdza to bardzo niska wartość p-val= (chisq.p-val= 9.50754389665259e-64). Z tego powodu, dla pozostałych województw test wskazuje na potwierdzenie hipotezy zerowej. Dodatkowo, wartość p dla testu wszystkich województw także była bliska zeru.
+Jest to zgodne z wykresem, ponieważ procentowa różnica między przebiegiem leczenia jest dla tych par niewielka, w przeciwieństwie do liczby zakażonych. W pozostałych przypadkach taka sytuacja nie występuje. Przykładowo skuteczność w wojewodztwie świętokrzyskim wynosi około 3.5%, natomiast w mazowieckim jedynie 2,3%. Potwierdza to bardzo niska wartość p-val= (chisq.p-val= 9.50754389665259e-64). Z tego powodu, dla pozostałych województw test wskazuje na potwierdzenie hipotezy zerowej. Dodatkowo, wartość p dla testu wszystkich województw także była bliska zeru.
 
 ## Zadanie 1c
 
 ### Proces szczepień
 
 Na wykresie w zadaniu 1a niektóre z województw posiadały bardziej zbliżony przebieg sczepień niż inne. Wartość p dla każdej pary województw w teście Chisq była pomijalnie mała (bliska zeru), przez co potwierdziliśmy hipotezę zerową.
-Z tego powodu, nie wyróżniamy w tym przypadku istonie różniących się województw względem testu Chisq. Zgodnie z wykresem, w województwie mazowieckim zaszczepienie jest na poziomie 21%, a w województwie świętokrzyskim
+Z tego powodu, nie wyróżniamy w tym przypadku istonie różniących się województw względem testu Chisq. Biorąc pod uwagę nominalne wartości, to zgodnie z wykresem, w województwie mazowieckim zaszczepienie jest na poziomie 21%, a w województwie świętokrzyskim
 na poziomie 16%. Dodatkowo, roznica pojawiła się na początku akcji szczepień i trwa do czerwca bieżącego roku (2021). Są to najbardziej skrajne wartości w badanym zbiorze.
 
 ### Skuteczność leczenia
 
 W opisie zadania 1b zaprezentowaliśmy różnicę między skrajnymi województwami: mazowieckim i świętokrzyskim. Wartość p dla ich testu nie jednak najmniejszą wartością w zbiorze. Zgodnie z raportem "Leczenie: Mazowieckie i Lubelskie jest niezalezne dla p= 0.05 chisq.p-val= 1.93220759873936e-102". Wynika to z faktu, że województwo lubelskie posiada jeszcze większą procentową liczbę zaszczepionych osób niż świętokrzyskie.
-
-### Rozwiązanie
-Do rozwiązania c skorzystwaliśmy z wykresów wygenerowanych w powyższych podpunktach. Na ich podstawie przeprowadziliśmy dodatkowe testy między województwami o skrajnych wartościach.
 
 
 ## Zadanie 2
