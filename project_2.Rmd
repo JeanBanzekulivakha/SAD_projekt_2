@@ -41,6 +41,7 @@ Sekcja ta definiuje funkcje odpowiedzilne za odpowiednie wczytanie danych i ich 
 * read_population_data - wczytuje informacje o populacji danego województwa. Pobraliśmy w tym celu dodatkowy, ogólno dostępny zbiór danych statystycznych ze strony https://stat.gov.pl
 * area_to_population - otrzymując województwo na wejściu zwraca jego populację
 * count_vaccined_to_population - Dla każdego województwa oblicza stosunek sumarycznej liczby osób zaszczepionych (całkowicie) danego dnia do populacji
+* read_current_vaccination_data - odczytuje dane o szczepienach z ostatniego pomiaru
 
 ```{r}
 
@@ -112,6 +113,16 @@ count_vaccined_to_population <- function(population_data, vaccination_data) {
   return(vaccination_data)
 }
 
+read_current_vaccination_data <- function(data_dir, data_file) {
+  data_file_path <- paste0(data_dir, data_file)
+  df <- read_excel(data_file_path, sheet="DEMOGRAFIA", range = "J4:O19")
+  colnames(df) <- c("wojewodztwo", "blanks", "zaszczepionych_niepelnie",
+                    "procent_zaszczepionych_niepelnie","zaszczepionych", "procent_zaszczepionych")
+  df <- df %>% select("wojewodztwo", "zaszczepionych", "procent_zaszczepionych")
+  df["szacunkowa_populacja"] <- df$zaszczepionych / df$procent_zaszczepionych
+  return(df)
+}
+
 ```
 
 ### Pomocnicza wizualizacja
@@ -146,38 +157,68 @@ Wykres wskazuje bardzo zbliżony postęp szczepień we wszystkich badanych wojew
 
 ### Testowanie hipotezy
 
-Przeprowadziliśmy badania hipotezy porównując rozkłady między parami województw. Porównujemy rozkłady testując hipotezę, że proces szczepień przebiega między nimi jednakowo.
+Przeprowadzamy test Chisq na całym zbiorze województw, a następnie na parach. W tym celu zaimplementowaliśmy funkcje:
 
-``` {r}
-count <- nrow(vaccination_data_total)
-test_mazowieckie <- rnorm(n=count, mean = mean(vaccination_data_total$mazowieckie_calkowicie), sd = sd(vaccination_data_total$mazowieckie_calkowicie))
-test_lodzkie <- rnorm(n=count, mean = mean(vaccination_data_total$lodzkie_calkowicie), sd = sd(vaccination_data_total$lodzkie_calkowicie))
-current_test <- t.test(test_mazowieckie, test_lodzkie, var.equal = TRUE)
-print(current_test)
+* test_full_vacc - testuje wszystkie województwa dostarczone jako lista tested_areas. Na wejściu przyjmuje poziom istotności oraz flagę verbose. Jeśli jest zapalona, to wyświetlany jest pełny wynik testu.
+* test_pair_vacc - testuje parę województw, przyjmuje ich nazwę na wejściu
+* test_every_pair_vacc - uruchamia dla każdej możliwej pary województw test_pair_vacc
 
-test_slaskie <- rnorm(n=count, mean = mean(vaccination_data_total$slaskie_calkowicie), sd = sd(vaccination_data_total$slaskie_calkowicie))
-current_test <- t.test(test_slaskie, test_lodzkie, var.equal = TRUE)
-print(current_test)
+``` {r, warning=FALSE, message = FALSE}
 
-test_lubelskie <- rnorm(n=count, mean = mean(vaccination_data_total$lubelskie_calkowicie), sd = sd(vaccination_data_total$lubelskie_calkowicie))
-current_test <- t.test(test_slaskie, test_lubelskie, var.equal = TRUE)
-print(current_test)
+test_full_vacc <- function(df, tested_areas, p_val, verbose) {
+  to_test <- df %>% filter(wojewodztwo %in% tested_areas)
+  p <- to_test$szacunkowa_populacja / sum(to_test$szacunkowa_populacja)
+  res <- chisq.test(to_test$zaszczepionych, p=p)
 
-test_kujawskopomorskie <- rnorm(n=count, mean = mean(vaccination_data_total$kujawskopomorskie_calkowicie), sd = sd(vaccination_data_total$kujawskopomorskie_calkowicie))
-current_test <- t.test(test_kujawskopomorskie, test_lubelskie, var.equal = TRUE)
-print(current_test)
+  if(verbose == 1) {
+    print(res)
+  }
 
-test_warminskomazurskie <- rnorm(n=count, mean = mean(vaccination_data_total$warminskomazurskie_calkowicie), sd = sd(vaccination_data_total$warminskomazurskie_calkowicie))
-current_test <- t.test(test_kujawskopomorskie, test_warminskomazurskie, var.equal = TRUE)
-print(current_test)
+  if(res$p.value > p_val) {
+    result_str <- paste("zalezne dla p=", p_val)
+  } else {
+    result_str <- paste("niezalezne dla p=", p_val)
+  }
+  print(paste("Szczepienie przeciwko covid we wszystkich badanych wojewodztwach jest", result_str, "wyznaczono p-val=", res$p.value))
 
-test_swietokrzyskie <- rnorm(n=count, mean = mean(vaccination_data_total$swietokrzyskie_calkowicie), sd = sd(vaccination_data_total$swietokrzyskie_calkowicie))
-current_test <- t.test(test_warminskomazurskie, test_swietokrzyskie, var.equal = TRUE)
-print(current_test)
+}
+
+test_pair_vacc <- function(df, label1, label2, p_val, verbose) {
+  to_test <- df %>% filter(wojewodztwo %in% tested_areas)
+  p <- to_test$szacunkowa_populacja / sum(to_test$szacunkowa_populacja)
+  res <- chisq.test(to_test$zaszczepionych, p=p)
+
+  if(verbose == 1) {
+    print(res)
+  }
+
+  if(res$p.value > p_val) {
+    result_str <- paste("zalezne dla p=", p_val)
+  } else {
+    result_str <- paste("niezalezne dla p=", p_val)
+  }
+  print(paste("Szczepienie:", label1, "i", label2, "jest", result_str, "chisq.p-val=", res$p.value))
+
+}
+
+test_every_pair_vacc <- function(curation_data, tested_areas, p_val, verbose) {
+  for(i in 1:(length(tested_areas) - 1)) {
+    for (j in (i+1):length(tested_areas)) {
+      test_pair_vacc(curation_data, tested_areas[[i]][1], tested_areas[[j]][1], p_val, verbose)
+    }
+  }
+}
+
+
+
+current_vaccination_data <- read_current_vaccination_data(data_dir = "data/", data_file = "covid_szczepienia.xlsx")
+tested_areas <-  list("mazowieckie", "łódzkie", "śląskie", "lubelskie", "kujawsko-pomorskie", "warmińsko-mazurskie", "świętokrzyskie")
+test_full_vacc(current_vaccination_data, tested_areas, 0.05, 1)
+test_every_pair_vacc(current_vaccination_data, tested_areas, 0.05, 0)
 
 ```
 
-W testowanej próbce w każdym przypadku osiągneliśmy p-value > 0.05. Oznacza to, że nie mamy podstaw do odrzucenia hipotezy zerowej, która mówi, że szczepienia przebiegają równie szybko. Jest to także zgodne z wykresem, który przedstawia bardzo zbliżone tendencje między przebiegiem szczepień w województwach.
+TODO wniosek
 
 ## Zadanie 1b
 
@@ -282,35 +323,42 @@ draw_efficiency_chart(curation_data)
 
 ### Testowanie hipotezy
 
-Przeprowadziliśmy badania hipotezy porównując rozkłady normalne określające jakość leczenia. Hipotezą jest stwierdzenie, że jakość szczepienia jest jednakowa między województwami.
+Przeprowadziliśmy badania hipotezy porównując rozkłady normalne określające jakość leczenia. Hipotezą jest stwierdzenie, że jakość szczepienia jest jednakowa między województwami. Zaimplementowaliśmy funkcje pomocnicze analogiczne jak w poprzednim podpunkcie.
 
-``` {r}
+* test_pair_eff - wynokuje test Chisq na parze województw określonych parametrami label1 i label2
+* test_full_eff - wynokuje test na każdym wojewódzwie z listy
+* test_every_pair_eff - uruchamia test_pair_eff dla każdej możliwej pary wyjewództw z zadanej listy
 
-test_pair <- function(df, label1, label2, p_val, verbose) {
+``` {r, warning = FALSE}
+
+test_pair_eff <- function(df, label1, label2, p_val, verbose) {
   to_test <- df %>% filter(wojewodztwo %in% c(label1, label2))
   to_test <- to_test %>% select("suma_potwierdzonych", "suma_zgonow")
   p <- to_test$suma_potwierdzonych / sum(to_test$suma_potwierdzonych)
   res <- chisq.test(to_test$suma_zgonow, p=p)
+
+  if(verbose == 1) {
+    print(res)
+  }
 
   if(res$p.value > p_val) {
     result_str <- paste("zalezne dla p=", p_val)
   } else {
     result_str <- paste("niezalezne dla p=", p_val)
   }
-  print(paste("Leczenie covid w wojewodztwach:", label1, "i", label2, "jest", result_str, "wyznaczono p-val=", res$p.value))
+  print(paste("Leczenie:", label1, "i", label2, "jest", result_str, "chisq.p-val=", res$p.value))
+
+}
+
+test_full_eff <- function(df, tested_areas, p_val, verbose) {
+  to_test <- df %>% filter(wojewodztwo %in% tested_areas)
+  to_test <- to_test %>% select("suma_potwierdzonych", "suma_zgonow")
+  p <- to_test$suma_potwierdzonych / sum(to_test$suma_potwierdzonych)
+  res <- chisq.test(to_test$suma_zgonow, p=p)
 
   if(verbose == 1) {
     print(res)
   }
-
-}
-
-test_full <- function(df, p_val, verbose) {
-  to_test <- df %>% filter(wojewodztwo %in% c("Mazowieckie", "Łódzkie", "Śląskie",
-                                                             "Lubelskie", "Kujawsko-Pomorskie", "Warmińsko-Mazurskie", "Świętokrzyskie"))
-  to_test <- to_test %>% select("suma_potwierdzonych", "suma_zgonow")
-  p <- to_test$suma_potwierdzonych / sum(to_test$suma_potwierdzonych)
-  res <- chisq.test(to_test$suma_zgonow, p=p)
 
   if(res$p.value > p_val) {
     result_str <- paste("zalezne dla p=", p_val)
@@ -319,41 +367,41 @@ test_full <- function(df, p_val, verbose) {
   }
   print(paste("Leczenie covid we wszystkich badanych wojewodztwach jest", result_str, "wyznaczono p-val=", res$p.value))
 
-  if(verbose == 1) {
-    print(res)
-  }
 }
 
-test_every_pair <- function(tested_areas, p_val, verbose) {
+test_every_pair_eff <- function(curation_data, tested_areas, p_val, verbose) {
   for(i in 1:(length(tested_areas) - 1)) {
     for (j in (i+1):length(tested_areas)) {
-      test_pair(curation_data, tested_areas[[i]][1], tested_areas[[j]][1], p_val, verbose)
+      test_pair_eff(curation_data, tested_areas[[i]][1], tested_areas[[j]][1], p_val, verbose)
     }
   }
 }
 
-test_full(curation_data, 1, 1)
 
 tested_areas <-  list("Mazowieckie", "Łódzkie", "Śląskie", "Lubelskie", "Kujawsko-Pomorskie", "Warmińsko-Mazurskie", "Świętokrzyskie")
-test_every_pair(tested_areas, 0.05, 0)
+test_full_eff(curation_data, tested_areas, 1, 1)
+test_every_pair_eff(curation_data, tested_areas, 0.05, 0)
 
 
 ```
+### Wnioski
 
-Otrzymując wartości p zbliżone do zera, wysunęliśmy wniosek, że odrzucamy tę hipotezę. Na wykresie widać również, że istnieje znacząca różnica między poszczególnymi województwami. Skrajne przypadki różnią się o kilkadziesiąt procent. Są one opisane w podpunkcie c.
+Jak widać w wygenerowanym powyżej raporcie, wystepuje zależność między przebiegiem leczenia covid w województwach:
+
+* Śląskie i Kujawsko-Pomorskie
+* Lubelskie i Świętokrzyski
+* Mazowieckie i Warmińsko-Mazurskie
+
+Jest to zgodne z wykresem, ponieważ procentowa różnica między zaszczepionymi populacjami jest dla tych par niewielka. Pozostałe pary posiadały znaczące różnice. Przykładowo skuteczność w wojewodztwie świętokrzyskim wynosi około 3.5%, natomiast w mazowieckim jedynie 2,3%. Potwierdza to bardzo niska wartość p-val= (chisq.p-val= 9.50754389665259e-64). Z tego powodu, dla pozostałych województw test wskazuje na odrzucenie hipotezy. Dodatkowo wartość p dla testu wszystkich województw także była bliska zeru.
 
 ## Zadanie 1c
 
-W kazdym z powyzszych przypadków wskaz ewentualnie, które województwa istotnie sie od siebie róznia pod katem rozwazanych statystyk.
+### Skuteczność sczepień
+
+W opisie zadania 1b zaprezentowaliśmy różnicę między skrajnymi województwami: mazowieckim i świętokrzyskim. Wartość p dla ich testu nie jednak najmniejszą wartością w zbiorze. Zgodnie z raportem "Leczenie: Mazowieckie i Lubelskie jest niezalezne dla p= 0.05 chisq.p-val= 1.93220759873936e-102". Wynika to z faktu, że województwo lubelskie posiada jeszcze większą procentową liczbę zaszczepionych osób niż świętokrzyskie.
 
 ### Rozwiązanie
 Do rozwiązania c skorzystwaliśmy z wykresów wygenerowanych w powyższych podpunktach. Na ich podstawie przeprowadziliśmy dodatkowe testy między województwami o skrajnych wartościach.
-
-#### Przebieg procesu szczepień
-
-
-
-#### Skuteczność leczenia
 
 
 ## Zadanie 2
@@ -430,4 +478,5 @@ p_val
 chisq.test(observed, expected)
 ```
 Przy założeniu że poziom istotności jest ustalony jako 0.05 oraz przewadzonych testach (Chi-Sqyuare Test), odrzucamy hipotezę zerową i dochodzimy do wniosku, że w rzeczywistości,operając na dany lig piłkarskich, nie ma zależnośc pomiędzy wynikem mecza a krajem. Co widać po wynikach wartośći p-value = 0.3409 <= 005.
+
 
