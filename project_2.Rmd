@@ -180,9 +180,9 @@ test_full_vacc <- function(df, tested_areas, p_val, verbose) {
   }
 
   if(res$p.value > p_val) {
-    result_str <- paste("zalezne dla p=", p_val)
-  } else {
     result_str <- paste("niezalezne dla p=", p_val)
+  } else {
+    result_str <- paste("zalezne dla p=", p_val)
   }
 
   if(res$p.value ==0) {
@@ -205,9 +205,9 @@ test_pair_vacc <- function(df, label1, label2, p_val, verbose) {
   }
 
   if(res$p.value > p_val) {
-    result_str <- paste("zalezne dla p=", p_val)
-  } else {
     result_str <- paste("niezalezne dla p=", p_val)
+  } else {
+    result_str <- paste("zalezne dla p=", p_val)
   }
 
   if(res$p.value ==0) {
@@ -239,8 +239,8 @@ test_every_pair_vacc(current_vaccination_data, tested_areas, 0.05, 0)
 
 ### Wnioski
 
-Dla każdej badanej próbki uzyskaliśmy jednakowe rezultaty swiadczące o odrzuceniu hipotezy zerowej. Potwierdza to także wykres powyżej, na którym nie
-istaniją dwa województwa o wyraźnie zbliżonej wartosci przebiegu szczepień.
+Dla każdej badanej próbki uzyskaliśmy jednakowe rezultaty swiadczące o potwierdzeniu hipotezy zerowej. Potwierdza to także wykres powyżej, na którym
+przebieg szczepień jest zbliżony dla każdej pary województw.
 
 ## Zadanie 1b
 
@@ -368,9 +368,9 @@ test_pair_eff <- function(df, label1, label2, p_val, verbose) {
   }
 
   if(res$p.value > p_val) {
-    result_str <- paste("zalezne dla p=", p_val)
-  } else {
     result_str <- paste("niezalezne dla p=", p_val)
+  } else {
+    result_str <- paste("zalezne dla p=", p_val)
   }
   print(paste("Leczenie:", label1, "i", label2, "jest", result_str, "chisq.p-val=", res$p.value))
 
@@ -387,9 +387,9 @@ test_full_eff <- function(df, tested_areas, p_val, verbose) {
   }
 
   if(res$p.value > p_val) {
-    result_str <- paste("zalezne dla p=", p_val)
-  } else {
     result_str <- paste("niezalezne dla p=", p_val)
+  } else {
+    result_str <- paste("zalezne dla p=", p_val)
   }
   print(paste("Leczenie covid we wszystkich badanych wojewodztwach jest", result_str, "wyznaczono p-val=", res$p.value))
 
@@ -412,20 +412,20 @@ test_every_pair_eff(curation_data, tested_areas, 0.05, 0)
 ```
 ### Wnioski
 
-Jak widać w wygenerowanym powyżej raporcie, wystepuje zależność między przebiegiem leczenia covid w województwach:
+Jak widać w wygenerowanym powyżej raporcie, wystepuje wyraźna różnica między przebiegiem leczenia covid w województwach:
 
 * Śląskie i Kujawsko-Pomorskie
 * Lubelskie i Świętokrzyski
 * Mazowieckie i Warmińsko-Mazurskie
 
-Jest to zgodne z wykresem, ponieważ procentowa różnica między zaszczepionymi populacjami jest dla tych par niewielka. Pozostałe pary posiadały znaczące różnice. Przykładowo skuteczność w wojewodztwie świętokrzyskim wynosi około 3.5%, natomiast w mazowieckim jedynie 2,3%. Potwierdza to bardzo niska wartość p-val= (chisq.p-val= 9.50754389665259e-64). Z tego powodu, dla pozostałych województw test wskazuje na odrzucenie hipotezy. Dodatkowo wartość p dla testu wszystkich województw także była bliska zeru.
+Jest to zgodne z wykresem, ponieważ procentowa różnica między zaszczepionymi populacjami jest dla tych par niewielka, w przeciwieństwie do populacji. W pozostałych przypadkach taka sytuacja nie występuje. Przykładowo skuteczność w wojewodztwie świętokrzyskim wynosi około 3.5%, natomiast w mazowieckim jedynie 2,3%. Potwierdza to bardzo niska wartość p-val= (chisq.p-val= 9.50754389665259e-64). Z tego powodu, dla pozostałych województw test wskazuje na potwierdzenie hipotezy zerowej. Dodatkowo, wartość p dla testu wszystkich województw także była bliska zeru.
 
 ## Zadanie 1c
 
 ### Proces szczepień
 
-Na wykresie w zadaniu 1a niektóre z województw posidały bardziej zbliżony przebieg sczepień niż inne. Mimo to, wartość p dla każdej pary województw w teście Chisq była pomijalnie mała (bliska zeru), przez co odrzuciliśmy hipotezę zerową.
-Z tego powodu, nie wyróżniamy w tym przypadku istonie różniących się województw względem testu Chisq. Różnice zaobserwowaliśmy na wykresie. W województwie mazowieckim zaszczepienie jest na poziomie 21%, a w województwie świętokrzyskim
+Na wykresie w zadaniu 1a niektóre z województw posiadały bardziej zbliżony przebieg sczepień niż inne. Wartość p dla każdej pary województw w teście Chisq była pomijalnie mała (bliska zeru), przez co potwierdziliśmy hipotezę zerową.
+Z tego powodu, nie wyróżniamy w tym przypadku istonie różniących się województw względem testu Chisq. Zgodnie z wykresem, w województwie mazowieckim zaszczepienie jest na poziomie 21%, a w województwie świętokrzyskim
 na poziomie 16%. Dodatkowo, roznica pojawiła się na początku akcji szczepień i trwa do czerwca bieżącego roku (2021). Są to najbardziej skrajne wartości w badanym zbiorze.
 
 ### Skuteczność leczenia
@@ -497,7 +497,7 @@ critical_val <- qchisq(a, df)
 critical_val
 ```
 
-WYliczania poziomu istotności:
+Wyliczania poziomu istotności:
 
 ```{r}
 p_val <- pchisq(stats_val, df, , lower.tail=FALSE)
@@ -510,6 +510,6 @@ p_val
 ```{r}
 chisq.test(observed, expected)
 ```
-Przy założeniu że poziom istotności jest ustalony jako 0.05 oraz przewadzonych testach (Chi-Sqyuare Test), odrzucamy hipotezę zerową i dochodzimy do wniosku, że w rzeczywistości,operając na dany lig piłkarskich, nie ma zależnośc pomiędzy wynikem mecza a krajem. Co widać po wynikach wartośći p-value = 0.3409 <= 005.
+Przy założeniu że poziom istotności jest ustalony jako 0.05 oraz przewadzonych testach (Chi-Sqyuare Test), odrzucamy hipotezę zerową i dochodzimy do wniosku, że w rzeczywistości,opierając się na danych lig piłkarskich, nie ma zależności pomiędzy wynikiem meczu, a krajem. Widać to po wynikach wartośći p-value = 0.3409 <= 0.05.
 
 
