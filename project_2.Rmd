@@ -146,7 +146,7 @@ Wykres wskazuje bardzo zbliżony postęp szczepień we wszystkich badanych wojew
 
 ### Testowanie hipotezy
 
-Przeprowadziliśmy badania hipotezy porównując rozkłady (...)
+Przeprowadziliśmy badania hipotezy porównując rozkłady między parami województw. Porównujemy rozkłady testując hipotezę, że proces szczepień przebiega między nimi jednakowo.
 
 ``` {r}
 count <- nrow(vaccination_data_total)
@@ -176,6 +176,8 @@ current_test <- t.test(test_warminskomazurskie, test_swietokrzyskie, var.equal =
 print(current_test)
 
 ```
+
+W testowanej próbce w każdym przypadku osiągneliśmy p-value > 0.05. Oznacza to, że nie mamy podstaw do odrzucenia hipotezy zerowej, która mówi, że szczepienia przebiegają równie szybko. Jest to także zgodne z wykresem, który przedstawia bardzo zbliżone tendencje między przebiegiem szczepień w województwach.
 
 ## Zadanie 1b
 
@@ -280,7 +282,7 @@ draw_efficiency_chart(curation_data)
 
 ### Testowanie hipotezy
 
-Przeprowadziliśmy badania hipotezy porównując rozkłady (...)
+Przeprowadziliśmy badania hipotezy porównując rozkłady normalne określające jakość leczenia. Hipotezą jest stwierdzenie, że jakość szczepienia jest jednakowa między województwami.
 
 ``` {r}
 
@@ -320,6 +322,8 @@ print(current_test)
 
 
 ```
+
+Otrzymując wartości p zbliżone do zera, wysunęliśmy wniosek, że odrzucamy tę hipotezę. Na wykresie widać również, że istnieje znacząca różnica między poszczególnymi województwami. Skrajne przypadki różnią się o kilkadziesiąt procent. Są one opisane w podpunkcie c.
 
 ## Zadanie 1c
 
