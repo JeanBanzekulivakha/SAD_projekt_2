@@ -465,8 +465,8 @@ data_compare_leagues$`2` = as.numeric(as.character(data_compare_leagues$`2`))
 ```
 
 ### Treść hipotezy
-* *Hipoteza zerowa* - wynik meczy, rozumianego jako zwyciestwo, porazke lub remis gospodarzy, *NIE ZALEŻY* od kraju rozgrywki.
-* *Hipoteza alternatywna* - wynik meczy, rozumianego jako zwyciestwo, porazke lub remis gospodarzy, *ZALEŻY* od kraju rozgrywki.
+* *Hipoteza zerowa* - wynik meczy, rozumianego jako zwyciestwo, porazke lub remis gospodarzy, *ZALEŻY* od kraju rozgrywki.
+* *Hipoteza alternatywna* - wynik meczy, rozumianego jako zwyciestwo, porazke lub remis gospodarzy, *NIE ZALEŻY* od kraju rozgrywki.
 
 Wartość statystyki testowej
 Przeprawadzimy test niezależności chi-kwadrat
@@ -494,10 +494,10 @@ critical_val <- qchisq(a, df)
 critical_val
 ```
 
-Wyliczania poziomu istotności:
+Wyliczanie p-wartości:
 
 ```{r}
-p_val <- pchisq(stats_val, df, , lower.tail=FALSE)
+p_val <- pchisq(stats_val, df, lower.tail=FALSE)
 p_val
 if(a > p_val) {
   print(paste("Hipoteza H_0 o zależności się potwierdza.  p=", p_val, " a=", a))
@@ -513,6 +513,7 @@ if(a > p_val) {
 chisq.test(observed, expected)
 ```
 
-Przy założeniu że poziom istotności jest ustalony jako 0.05 oraz przewadzonych testach (Chi-Sqyuare Test), odrzucamy hipotezę zerową i dochodzimy do wniosku, że w rzeczywistości,opierając się na danych lig piłkarskich, nie ma zależności pomiędzy wynikiem meczu, a krajem. Widać to po wynikach wartośći p-value = 0.3409 <= 0.05.
+Przy założeniu że poziom istotności jest ustalony jako 0.05 oraz przewadzonych testach (Chi-Sqyuare Test) wyszło, że wartość krytyczna jest mniejsza niż wartość statystyczna (1.635 < 6.788). Więc możemy odrzucić hipotezę zerową i dochodzimy do wniosku, że w rzeczywistości, opierając się na danych lig piłkarskich, nie potwierdza zależności pomiędzy wynikiem meczu, a krajem.
+Następnie była obliczona p-wartość (0.341), co potwierdza poprzednie wnioskowanie ponieważ p-wartość jest większa od poziomu istotności (p_val=0.3409 >= a=0.05).
 
 
