@@ -157,6 +157,11 @@ Wykres wskazuje bardzo zbliżony postęp szczepień we wszystkich badanych wojew
 
 ### Testowanie hipotezy
 
+#### Treść hipotezy
+* *Hipoteza zerowa* Proces szczepień przebiega równie szybko we wszystkich województwach
+* *Hipoteza alternatywna* Proces szczepeiń nie przebiega równie szybko we wszystkich województwach
+
+
 Przeprowadzamy test Chisq na całym zbiorze województw, a następnie na parach. W tym celu zaimplementowaliśmy funkcje:
 
 * test_full_vacc - testuje wszystkie województwa dostarczone jako lista tested_areas. Na wejściu przyjmuje poziom istotności oraz flagę verbose. Jeśli jest zapalona, to wyświetlany jest pełny wynik testu.
@@ -179,7 +184,14 @@ test_full_vacc <- function(df, tested_areas, p_val, verbose) {
   } else {
     result_str <- paste("niezalezne dla p=", p_val)
   }
-  print(paste("Szczepienie przeciwko covid we wszystkich badanych wojewodztwach jest", result_str, "wyznaczono p-val=", res$p.value))
+
+  if(res$p.value ==0) {
+    msg <- "chisq.p-val pomijalnie małe"
+  } else {
+    msg <- paste("wyznaczono p-val=", res$p.value)
+  }
+
+  print(paste("Szczepienie przeciwko covid we wszystkich badanych wojewodztwach jest", result_str, msg))
 
 }
 
@@ -197,7 +209,14 @@ test_pair_vacc <- function(df, label1, label2, p_val, verbose) {
   } else {
     result_str <- paste("niezalezne dla p=", p_val)
   }
-  print(paste("Szczepienie:", label1, "i", label2, "jest", result_str, "chisq.p-val=", res$p.value))
+
+  if(res$p.value ==0) {
+    msg <- "chisq.p-val pomijalnie małe"
+  } else {
+    msg <- paste("wyznaczono p-val=", res$p.value)
+  }
+
+  print(paste("Szczepienie:", label1, "i", label2, "jest", result_str, msg))
 
 }
 
@@ -218,7 +237,10 @@ test_every_pair_vacc(current_vaccination_data, tested_areas, 0.05, 0)
 
 ```
 
-TODO wniosek
+### Wnioski
+
+Dla każdej badanej próbki uzyskaliśmy jednakowe rezultaty swiadczące o odrzuceniu hipotezy zerowej. Potwierdza to także wykres powyżej, na którym nie
+istaniją dwa województwa o wyraźnie zbliżonej wartosci przebiegu szczepień.
 
 ## Zadanie 1b
 
@@ -323,6 +345,10 @@ draw_efficiency_chart(curation_data)
 
 ### Testowanie hipotezy
 
+#### Treść hipotezy
+* *Hipoteza zerowa* Skuteczność leczenia osób zarażonych wirusem SARS-CoV-2 jest taka sama na terenie całej Polski
+* *Hipoteza alternatywna* Skuteczność leczenie osób zarażonych wirusem SARS-CoV-2 nie jest taka sama na terenie całej Polski
+
 Przeprowadziliśmy badania hipotezy porównując rozkłady normalne określające jakość leczenia. Hipotezą jest stwierdzenie, że jakość szczepienia jest jednakowa między województwami. Zaimplementowaliśmy funkcje pomocnicze analogiczne jak w poprzednim podpunkcie.
 
 * test_pair_eff - wynokuje test Chisq na parze województw określonych parametrami label1 i label2
@@ -396,7 +422,13 @@ Jest to zgodne z wykresem, ponieważ procentowa różnica między zaszczepionymi
 
 ## Zadanie 1c
 
-### Skuteczność sczepień
+### Proces szczepień
+
+Na wykresie w zadaniu 1a niektóre z województw posidały bardziej zbliżony przebieg sczepień niż inne. Mimo to, wartość p dla każdej pary województw w teście Chisq była pomijalnie mała (bliska zeru), przez co odrzuciliśmy hipotezę zerową.
+Z tego powodu, nie wyróżniamy w tym przypadku istonie różniących się województw względem testu Chisq. Różnice zaobserwowaliśmy na wykresie. W województwie mazowieckim zaszczepienie jest na poziomie 21%, a w województwie świętokrzyskim
+na poziomie 16%. Dodatkowo, roznica pojawiła się na początku akcji szczepień i trwa do czerwca bieżącego roku (2021). Są to najbardziej skrajne wartości w badanym zbiorze.
+
+### Skuteczność leczenia
 
 W opisie zadania 1b zaprezentowaliśmy różnicę między skrajnymi województwami: mazowieckim i świętokrzyskim. Wartość p dla ich testu nie jednak najmniejszą wartością w zbiorze. Zgodnie z raportem "Leczenie: Mazowieckie i Lubelskie jest niezalezne dla p= 0.05 chisq.p-val= 1.93220759873936e-102". Wynika to z faktu, że województwo lubelskie posiada jeszcze większą procentową liczbę zaszczepionych osób niż świętokrzyskie.
 
@@ -435,8 +467,9 @@ data_compare_leagues$`x` = as.numeric(as.character(data_compare_leagues$`x`))
 data_compare_leagues$`2` = as.numeric(as.character(data_compare_leagues$`2`))
 ```
 
-*Hipoteza zerowa* - wynik meczy, rozumianego jako zwyciestwo, porazke lub remis gospodarzy, *NIE ZALEŻY* od kraju rozgrywki.
-*Hipoteza alternatywną* - wynik meczy, rozumianego jako zwyciestwo, porazke lub remis gospodarzy, *ZALEŻY* od kraju rozgrywki.
+### Treść hipotezy
+* *Hipoteza zerowa* - wynik meczy, rozumianego jako zwyciestwo, porazke lub remis gospodarzy, *NIE ZALEŻY* od kraju rozgrywki.
+* *Hipoteza alternatywna* - wynik meczy, rozumianego jako zwyciestwo, porazke lub remis gospodarzy, *ZALEŻY* od kraju rozgrywki.
 
 Wartość statystyki testowej
 Przeprawadzimy test niezależności chi-kwadrat
