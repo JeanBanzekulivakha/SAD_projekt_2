@@ -499,6 +499,11 @@ Wyliczania poziomu istotności:
 ```{r}
 p_val <- pchisq(stats_val, df, , lower.tail=FALSE)
 p_val
+if(a > p_val) {
+  print(paste("Hipoteza H_0 o zależności się potwierdza.  p=", p_val, " a=", a))
+} else {
+  print(paste("Hipoteza H_0 się nie potwierdza. p_val=", p_val, "a=", a))
+}
 ```
 
 
@@ -507,6 +512,7 @@ p_val
 ```{r}
 chisq.test(observed, expected)
 ```
+
 Przy założeniu że poziom istotności jest ustalony jako 0.05 oraz przewadzonych testach (Chi-Sqyuare Test), odrzucamy hipotezę zerową i dochodzimy do wniosku, że w rzeczywistości,opierając się na danych lig piłkarskich, nie ma zależności pomiędzy wynikiem meczu, a krajem. Widać to po wynikach wartośći p-value = 0.3409 <= 0.05.
 
 
