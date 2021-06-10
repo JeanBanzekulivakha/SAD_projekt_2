@@ -210,12 +210,30 @@ Dane pobrane ze strony [fcstats.com](https://pl.fcstats.com).
 Przygotowanie danych do analizy:
 
 ```{r}
-data_compare_leagues <- data.frame(matrix(ncol = 4, nrow = 0))
-colnames(data_compare_leagues) <- c("name_of_league", "1", "x", "2")
-data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Super League (Liga chińska)", 102, 79, 59)
-data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Premier League (Liga angielska)", 193, 96, 91)
-data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Serie A (Liga włoska)", 186, 102, 92)
-data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Primera Division (Liga hiszpańska)", 194, 95, 91)
+
+data_compare_leagues <- data.frame(matrix(ncol = 6, nrow = 0))
+colnames(data_compare_leagues) <- c("name_of_league", "1", "1%", "x", "2", "2%")
+data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Super League (Liga chińska)", 102, 43, 79, 59, 25)
+data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Premier League (Liga angielska)", 193, 51, 96, 91, 24)
+data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Serie A (Liga włoska)", 186, 49, 102, 92, 24)
+data_compare_leagues[nrow(data_compare_leagues) + 1,] = c("Primera Division (Liga hiszpańska)", 194, 51, 95, 91, 24)
 data_compare_leagues
+
+```
+*Hipoteza zerowa* - wynik meczy, rozumianego jako zwyciestwo, porazke lub remis gospodarzy, *NIE ZALEŻY* od kraju rozgrywki.
+*Hipoteza alternatywną* - wynik meczy, rozumianego jako zwyciestwo, porazke lub remis gospodarzy, *ZALEŻY* od kraju rozgrywki.
+
+Sprawdzanie za pomocą funkcji chisq.test
+
+Przy założeniu że poziom istotności jest ustalony jako 0.05 oraz przewadzonym testu (Chi-Sqyuare Test), odrzucamy hipotezę zerową i dochodzimy do wniosku, że w rzeczywistości,operając na dany lig piłkarskich, nie ma zależnośc pomiędzy wynikem mecza a krajem.
+
+```{r}
+chisq.test(data_compare_leagues$name_of_league, data_compare_leagues$`1`)
+chisq.test(data_compare_leagues$name_of_league, data_compare_leagues$`2`)
+chisq.test(data_compare_leagues$name_of_league, data_compare_leagues$`x`)
+
+```
+```{r}
+
 ```
 
